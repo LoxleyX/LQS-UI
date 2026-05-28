@@ -1,0 +1,10 @@
+# Ashita settings (per-character, not shared)
+config/
+config.dat
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local export config (copy from config.default.py)
+scripts/config.py

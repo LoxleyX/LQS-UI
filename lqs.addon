@@ -1,0 +1,7 @@
+[addon]
+name=lqs
+author=Loxley
+version=1.0.0
+desc=Rich quest UI for LQS quests
+link=https://catseyexi.com
+file=lqs.lua
