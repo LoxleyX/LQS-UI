@@ -8,7 +8,7 @@
 
 addon.name    = 'lqs';
 addon.author  = 'Loxley';
-addon.version = '1.0.0';
+addon.version = '1.1.0';
 addon.desc    = 'Quest browser and tracker for LQS';
 
 require('common');
