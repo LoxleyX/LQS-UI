@@ -8,3 +8,7 @@ __pycache__/
 
 # Local export config (copy from config.default.py)
 scripts/config.py
+
+# Extracted textures (dev artifacts, addon loads from DATs)
+textures/
+scripts/dump-texture.lua

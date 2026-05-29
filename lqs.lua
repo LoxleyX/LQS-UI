@@ -18,6 +18,7 @@ local lqs_ui      = require('utils/ui');
 local lqs_items   = require('utils/items');
 local lqs_plugins = require('utils/plugins');
 local lqs_config  = require('utils/config');
+local textures    = require('utils/textures');
 local questPanel  = require('panels/quests');
 local toast       = require('panels/toast');
 local tracker     = require('panels/tracker');
@@ -204,7 +205,12 @@ ashita.events.register('d3d_present', 'lqs_render', function()
 
     -- Quest panel
     if state.questListOpen[1] then
-        questPanel.render(state, nil, {
+        local bgTex = nil;
+        local bgStyle = tonumber(lqs_config.get('backgroundStyle') or '0') or 0;
+        if bgStyle > 0 then
+            bgTex = textures.getMenuBackground(bgStyle);
+        end
+        questPanel.render(state, bgTex, {
             requestList = sendGetQuestList,
         }, lqs_plugins.getAll());
     end
@@ -251,6 +257,12 @@ ashita.events.register('command', 'lqs_command', function(e)
     end
 
     local sub = args[2]:lower();
+
+    if sub == 'dumptex' then
+        local dumper = require('scripts/dump-texture');
+        dumper.dump();
+        return;
+    end
 
     if sub == 'pos' then
         local entity = GetPlayerEntity();

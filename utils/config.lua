@@ -9,6 +9,7 @@ local config = {};
 local defaults = {
     showDailiesInTracker = true,
     showCompass          = true,
+    backgroundStyle      = '0',  -- 0=off, 1-6=window style
     theme                = 'default',
 };
 

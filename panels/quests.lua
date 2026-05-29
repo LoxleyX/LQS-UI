@@ -627,21 +627,35 @@ quests.render = function(state, bgTex, callbacks, plugins)
     if not state.questListOpen[1] then return; end
 
     local styleCount = lqs_ui.pushWindowStyle();
+    local bgStylePushed = 0;
 
     imgui.SetNextWindowSize({ WINDOW_WIDTH, WINDOW_HEIGHT }, ImGuiCond_FirstUseEver);
 
     if imgui.Begin('LQS###lqs_panel', state.questListOpen, ImGuiWindowFlags_NoCollapse) then
-        -- Draw game background
+        -- Game menu background (extracted from DAT)
         if bgTex then
             local wx, wy = imgui.GetWindowPos();
             local ww, wh = imgui.GetWindowSize();
             local dl     = imgui.GetWindowDrawList();
-            dl:AddImage(bgTex,
-                { wx, wy },
-                { wx + ww, wy + wh },
-                { 0, 0 }, { 1, 1 },
-                0xCC000000
-            );
+            -- Tile the 128x128 texture across the window
+            local tw, th = 128, 128;
+            local tilesX = math.ceil(ww / tw);
+            local tilesY = math.ceil(wh / th);
+            for ty = 0, tilesY - 1 do
+                for tx = 0, tilesX - 1 do
+                    dl:AddImage(bgTex,
+                        { wx + tx * tw, wy + ty * th },
+                        { wx + math.min((tx+1) * tw, ww), wy + math.min((ty+1) * th, wh) },
+                        { 0, 0 },
+                        { math.min(1, (ww - tx*tw) / tw), math.min(1, (wh - ty*th) / th) },
+                        0xCCFFFFFF
+                    );
+                end
+            end
+            -- Make child/frame backgrounds transparent so texture shows through
+            imgui.PushStyleColor(ImGuiCol_ChildBg, { 0, 0, 0, 0 });
+            imgui.PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
+            bgStylePushed = 2;
         end
 
         -- Detail view (shared across tabs)
@@ -722,6 +736,32 @@ quests.render = function(state, bgTex, callbacks, plugins)
                         imgui.Unindent(8);
                         imgui.Spacing();
 
+                        -- Appearance
+                        lqs_ui.sectionHeader('Appearance');
+                        imgui.Spacing();
+                        imgui.Indent(8);
+
+                        lqs_ui.dim('Window Background:');
+                        local bgStyles = { '0', '1', '2', '3', '4', '5', '6' };
+                        local bgLabels = { [0] = 'Off', '1', '2', '3', '4', '5', '6' };
+                        local currentBg = config.get('backgroundStyle') or '0';
+                        for _, bs in ipairs(bgStyles) do
+                            local isSelected = (currentBg == bs);
+                            local label = bgLabels[tonumber(bs)] or bs;
+                            if isSelected then
+                                lqs_ui.button(label, 'primary', { 30, 20 });
+                            else
+                                if lqs_ui.button(label, 'back', { 30, 20 }) then
+                                    config.set('backgroundStyle', bs);
+                                end
+                            end
+                            imgui.SameLine(0, 3);
+                        end
+                        imgui.NewLine();
+
+                        imgui.Unindent(8);
+                        imgui.Spacing();
+
                         -- Tracker settings
                         lqs_ui.sectionHeader('Tracker');
                         imgui.Spacing();
@@ -749,6 +789,9 @@ quests.render = function(state, bgTex, callbacks, plugins)
         end
     end
     imgui.End();
+    if bgStylePushed > 0 then
+        imgui.PopStyleColor(bgStylePushed);
+    end
     lqs_ui.popWindowStyle(styleCount);
 end
 
